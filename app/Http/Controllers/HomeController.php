@@ -8,6 +8,7 @@ use App\Models\Pengeluaran;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
+use SebastianBergmann\CodeCoverage\Report\Html\Dashboard;
 
 class HomeController extends Controller
 {
@@ -183,5 +184,23 @@ class HomeController extends Controller
         $model->delete();
         Session::flash('sukses', 'Data Berhasil Dihapus');
         return redirect('/halamanPengeluaran');
+    }
+
+    public function halamanDashboard(){
+        return view('dashboard.index');
+    }
+
+    public function dataCharts() {
+        $model = Pengeluaran::selectRaw('sum(nominal) as total, kategori_id')->groupBy('kategori_id')->get();
+
+        $label = [];
+        $isi = [];
+
+        foreach ($model as $row) {
+            $label[] = Kategori::where('kategori_id', $row->kategori_id)->first()->nama_kategori;
+            $isi[] = $row->total;
+        }
+
+        return json_encode([$label, $isi]);
     }
 }

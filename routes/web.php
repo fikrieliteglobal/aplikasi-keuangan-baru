@@ -35,3 +35,7 @@ Route::get('/halamanPengeluaran', [HomeController::class, 'halamanPengeluaran'])
 Route::post('/simpanPengeluaran', [HomeController::class, 'simpanPengeluaran']);
 
 Route::get('/deletePengeluaran/{id}', [HomeController::class, 'deletePengeluaran']);
+
+Route::get('/halamanDashboard', [HomeController::class, 'halamanDashboard']);
+
+Route::post('/dataCharts', [HomeController::class, 'dataCharts']);

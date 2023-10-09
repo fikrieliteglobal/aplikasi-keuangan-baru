@@ -78,7 +78,7 @@
                         <!-- Add icons to the links using the .nav-icon class
                with font-awesome or any other icon font library -->
                         <li class="nav-item">
-                            <a href="" class="nav-link">
+                            <a href="{{ url('/halamanDashboard')}}" class="nav-link">
                                 <i class="nav-icon fas fa-tachometer-alt"></i>
                                 <p>
                                     Dashboard
@@ -194,6 +194,7 @@
     <script src="{{ asset('template/plugins/dropzone/min/dropzone.min.js') }}"></script>
     <!-- AdminLTE App -->
     <script src="{{ asset('template/dist/js/adminlte.min.js') }}"></script>
+    <script src="{{ asset('template/plugins/chart.js/Chart.min.js')}}"></script>
 
     @yield('js')
 </body>
