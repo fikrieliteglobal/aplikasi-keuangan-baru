@@ -39,3 +39,5 @@ Route::get('/deletePengeluaran/{id}', [HomeController::class, 'deletePengeluaran
 Route::get('/halamanDashboard', [HomeController::class, 'halamanDashboard']);
 
 Route::post('/dataCharts', [HomeController::class, 'dataCharts']);
+
+Route::post('/dataChartsMonthly', [HomeController::class, 'dataChartsMonthly']);

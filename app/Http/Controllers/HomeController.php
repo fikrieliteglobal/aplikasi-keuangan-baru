@@ -7,12 +7,14 @@ use App\Models\Pemasukan;
 use App\Models\Pengeluaran;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 use SebastianBergmann\CodeCoverage\Report\Html\Dashboard;
 
 class HomeController extends Controller
 {
-    public function halamanIndex() {
+    public function halamanIndex()
+    {
         $modelPengeluaran = Kategori::where('jenis_kategori', 'pengeluaran')->orderBy('kategori_id', 'ASC')->get();
         $modelPemasukan = Kategori::where('jenis_kategori', 'pemasukan')->orderBy('kategori_id', 'ASC')->get();
 
@@ -24,11 +26,13 @@ class HomeController extends Controller
         ]);
     }
 
-    public function contoh() {
+    public function contoh()
+    {
         return view('contoh.index');
     }
 
-    public function simpanKategori() {
+    public function simpanKategori()
+    {
         // dd($_POST);
 
         // ditampung dulu datanya di $blablabla $_post
@@ -46,9 +50,10 @@ class HomeController extends Controller
         // setelah model save disimpan kemudian akan di redirect ke mana? sembarang cari di route nya
     }
 
-    public function ubahKategori(){
+    public function ubahKategori()
+    {
         // dd($_POST);
-        
+
         $kategori_id = $_POST['kategori_id'];
         $nama_kategori = $_POST['nama_kategori'];
 
@@ -60,7 +65,8 @@ class HomeController extends Controller
         return redirect('/');
     }
 
-    public function deleteKategori($kategori_id) {
+    public function deleteKategori($kategori_id)
+    {
         // $id_profil = $id;
         $model = Kategori::where('kategori_id', $kategori_id)->first();
         $model->delete();
@@ -68,7 +74,8 @@ class HomeController extends Controller
         return redirect('/');
     }
 
-    public function halamanPemasukan() {
+    public function halamanPemasukan()
+    {
 
         if (isset($_GET['tgl_awal']) && $_GET['tgl_awal'] != "") {
             $tgl_awal = $_GET['tgl_awal'];
@@ -89,15 +96,16 @@ class HomeController extends Controller
         $total = $this->hitungTotal($model);
 
         return view('pemasukan.index', [
-            'modelPemasukan' => $modelPemasukan, 
-            'model' => $model, 
+            'modelPemasukan' => $modelPemasukan,
+            'model' => $model,
             'total' => $total,
             'tgl_awal' => $tgl_awal,
             'tgl_akhir' => $tgl_akhir
         ]);
     }
 
-    public function simpanPemasukan(){
+    public function simpanPemasukan()
+    {
         // dd($_POST);
         $tanggal = $_POST['tanggal'];
         $kategori_id = $_POST['kategori_id'];
@@ -114,7 +122,8 @@ class HomeController extends Controller
         return redirect('/halamanPemasukan');
     }
 
-    public function deletePemasukan($pemasukan_id) {
+    public function deletePemasukan($pemasukan_id)
+    {
         // $id_profil = $id;
         $model = Pemasukan::where('pemasukan_id', $pemasukan_id)->first();
         $model->delete();
@@ -122,7 +131,8 @@ class HomeController extends Controller
         return redirect('/halamanPemasukan');
     }
 
-    public function hitungTotal($model) {
+    public function hitungTotal($model)
+    {
         $data = [];
 
         foreach ($model as $row) {
@@ -134,7 +144,7 @@ class HomeController extends Controller
         return $sum;
     }
 
-    public function halamanPengeluaran() 
+    public function halamanPengeluaran()
     {
         if (isset($_GET['tgl_awal']) && $_GET['tgl_awal'] != "") {
             $tgl_awal = $_GET['tgl_awal'];
@@ -153,15 +163,16 @@ class HomeController extends Controller
         $total = $this->hitungTotal($model);
 
         return view('pengeluaran.index', [
-            'modelPengeluaran' => $modelPengeluaran, 
-            'model' => $model, 
+            'modelPengeluaran' => $modelPengeluaran,
+            'model' => $model,
             'total' => $total,
             'tgl_awal' => $tgl_awal,
             'tgl_akhir' => $tgl_akhir,
         ]);
     }
 
-    public function simpanPengeluaran(){
+    public function simpanPengeluaran()
+    {
         // dd($_POST);
         $tanggal = $_POST['tanggal'];
         $kategori_id = $_POST['kategori_id'];
@@ -178,7 +189,8 @@ class HomeController extends Controller
         return redirect('/halamanPengeluaran');
     }
 
-    public function deletePengeluaran($pengeluaran_id) {
+    public function deletePengeluaran($pengeluaran_id)
+    {
         // $id_profil = $id;
         $model = Pengeluaran::where('pengeluaran_id', $pengeluaran_id)->first();
         $model->delete();
@@ -186,11 +198,13 @@ class HomeController extends Controller
         return redirect('/halamanPengeluaran');
     }
 
-    public function halamanDashboard(){
+    public function halamanDashboard()
+    {
         return view('dashboard.index');
     }
 
-    public function dataCharts() {
+    public function dataCharts()
+    {
         $model = Pengeluaran::selectRaw('sum(nominal) as total, kategori_id')->groupBy('kategori_id')->get();
 
         $label = [];
@@ -202,5 +216,69 @@ class HomeController extends Controller
         }
 
         return json_encode([$label, $isi]);
+    }
+
+    public function dataChartsMonthly()
+    {
+        $tahun_ini = date('Y');
+        $awal_bulan = date('m', strtotime('first month of this year'));
+        $bulan_ini = date('m', strtotime('this month'));
+        $tampung_bulan = [];
+        $tampung_hasil_total_pemasukan = [];
+        $tampung_hasil_total_pengeluaran = [];
+
+
+        for ($i = intval($awal_bulan); $i <= intval($bulan_ini); $i++) {
+            if ($i < 10) {
+                $tampung_bulan[] = '0' . $i;
+            } else {
+                $tampung_bulan[] = strval($i);
+            }
+        }
+
+        $bulan = [
+            '01' => 'january',
+            '02' => 'february',
+            '03' => 'march',
+            '04' => 'april',
+            '05' => 'may',
+            '06' => 'june',
+            '07' => 'july',
+            '08' => 'august',
+            '09' => 'september',
+            '10' => 'october',
+            '11' => 'november',
+            '12' => 'december',
+        ];
+
+
+        foreach ($tampung_bulan as $value) {
+            $tgl_awal = date($tahun_ini . '-' . $value . '-d', strtotime('first day of ' . $bulan[$value]));
+            $tgl_akhir = date($tahun_ini . '-' . $value . '-d', strtotime('last day of ' . $bulan[$value]));
+
+            $model_pemasukan = Pemasukan::selectRaw('sum(nominal) as total')
+                ->whereBetween("tanggal", [$tgl_awal, $tgl_akhir])->first();
+
+            if ($model_pemasukan->total == null) {
+                $tampung_hasil_total_pemasukan[] = 0;
+            } else {
+                $tampung_hasil_total_pemasukan[] = $model_pemasukan->total;
+            }
+
+            $model_pengeluaran = Pengeluaran::selectRaw('sum(nominal) as total')
+                ->whereBetween("tanggal", [$tgl_awal, $tgl_akhir])->first();
+
+            if ($model_pengeluaran->total == null) {
+                $tampung_hasil_total_pengeluaran[] = 0;
+            } else {
+                $tampung_hasil_total_pengeluaran[] = $model_pengeluaran->total;
+            }
+        }
+        $data = [
+            'pemasukan' => $tampung_hasil_total_pemasukan, 
+            'pengeluaran' => $tampung_hasil_total_pengeluaran
+        ];
+
+        return json_encode($data);
     }
 }
